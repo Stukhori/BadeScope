@@ -117,6 +117,9 @@ st.markdown(
         .card { padding:.9rem 1rem; }
         .status-row { align-items:flex-start; }
     }
+    @media (max-width: 480px) {
+        .block-container { padding-top: 4rem; }
+    }
     </style>
     """,
     unsafe_allow_html=True,
