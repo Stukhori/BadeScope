@@ -89,8 +89,14 @@ st.markdown(
              font-size: .72rem; font-weight: 750; letter-spacing: .055em; }
     .notice { border-left: 5px solid #2b8fd2; background: #eaf5fd; padding: .9rem 1rem;
               border-radius: 10px; margin: .75rem 0 1.2rem; color: #153d5c; }
-    .card { background: rgba(255,255,255,.90); border: 1px solid #c9deed; border-radius: 15px;
+    .card { height: 100%; box-sizing: border-box; background: rgba(255,255,255,.90);
+            border: 1px solid #c9deed; border-radius: 15px;
             padding: 1rem 1.15rem; box-shadow: 0 6px 20px rgba(23,75,116,.09); }
+    .workspace-status { border-top: 4px solid #2b8fd2; }
+    .workspace-status h2 { margin: .35rem 0 .65rem; font-size: 1.35rem; }
+    .status-row { display:flex; justify-content:space-between; gap:1rem; padding:.55rem 0;
+                  border-top:1px solid #d9e8f3; color:#46677f; }
+    .status-row strong { color:#102a43; text-align:right; }
     .eyebrow { color: #116eaf; font-size: .76rem; font-weight: 800; letter-spacing: .08em; }
     .status-ok { border-left: 4px solid #2589c9; background: #e8f4fc; padding: .8rem 1rem; border-radius: 10px; }
     div[data-testid="stMetric"] { background:rgba(255,255,255,.90); border:1px solid #c9deed; padding:.7rem; border-radius:12px; }
@@ -104,9 +110,12 @@ st.markdown(
     .brand-name { color:#0b3158; font-size:1.4rem; font-weight:800; line-height:1; letter-spacing:-.02em; }
     .brand-subtitle { color:#53758f; font-size:.72rem; margin-top:.25rem; letter-spacing:.08em; text-transform:uppercase; }
     @media (max-width: 700px) {
+        .block-container { padding: .8rem .8rem 2.25rem; }
         .hero { padding:1.15rem; border-radius:14px; }
         .hero-copy { max-width:100%; }
         .turbine-scene { display:none; }
+        .card { padding:.9rem 1rem; }
+        .status-row { align-items:flex-start; }
     }
     </style>
     """,
@@ -246,16 +255,27 @@ def render_home() -> None:
         "Upload a blade image, detect likely defect regions automatically, review the results, and classify each selected region.",
     )
     render_scope_notice()
-    st.markdown(
-        '<div class="card"><div class="eyebrow">PRIMARY WORKFLOW</div>'
-        '<h2>Auto detection</h2><p>Find likely defect regions, review the numbered boxes, '
-        'and classify the regions you select.</p></div>',
-        unsafe_allow_html=True,
-    )
-    st.button(
-        "Detect and classify defects", type="primary", width="stretch",
-        on_click=go_to_analysis, args=("Auto detection",),
-    )
+    primary_workflow, workspace_status = st.columns([1.7, 1], gap="large")
+    with primary_workflow:
+        st.markdown(
+            '<div class="card"><div class="eyebrow">PRIMARY WORKFLOW</div>'
+            '<h2>Auto detection</h2><p>Find likely defect regions, review the numbered boxes, '
+            'and classify the regions you select.</p></div>',
+            unsafe_allow_html=True,
+        )
+        st.button(
+            "Detect and classify defects", type="primary", width="stretch",
+            on_click=go_to_analysis, args=("Auto detection",),
+        )
+    with workspace_status:
+        st.markdown(
+            '<div class="card workspace-status"><div class="eyebrow">WORKSPACE STATUS</div>'
+            '<h2>Ready for local analysis</h2>'
+            '<div class="status-row"><span>Auto detection</span><strong>Ready</strong></div>'
+            '<div class="status-row"><span>Analysis modes</span><strong>4</strong></div>'
+            f'<div class="status-row"><span>Saved regions</span><strong>{len(records())}</strong></div></div>',
+            unsafe_allow_html=True,
+        )
     st.markdown("### Additional analysis features")
     first, second, third = st.columns(3)
     with first:
@@ -271,11 +291,6 @@ def render_home() -> None:
     action_a.button("Compare saved regions", width="stretch", on_click=go_to, args=("Compare Regions",))
     action_b.button("Open research results", width="stretch", on_click=go_to, args=("Research Results",))
     action_c.button("Check detection readiness", width="stretch", on_click=go_to, args=("Detection Readiness",))
-    st.markdown("### Current apparatus")
-    a, b, c = st.columns(3)
-    a.metric("Auto detection", "Ready")
-    b.metric("Analysis modes", "4")
-    c.metric("Saved regions", str(len(records())))
 
 
 def render_prepared() -> None:
