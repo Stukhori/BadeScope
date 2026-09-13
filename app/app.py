@@ -58,7 +58,12 @@ st.markdown(
         background: linear-gradient(180deg, #e5f1fb 0%, #f4f8fc 68%, #eaf3fb 100%);
         border-right: 1px solid #c8ddec;
     }
-    .block-container { max-width: 1280px; padding-top: 1.2rem; padding-bottom: 3rem; }
+    .block-container {
+        box-sizing: border-box;
+        width: 100%;
+        max-width: 1600px;
+        padding: 1.2rem clamp(1rem, 2.25vw, 2.75rem) 3rem;
+    }
     .hero { position: relative; overflow: hidden; padding: 1.65rem 1.8rem;
             border-radius: 22px; color: white;
             background: linear-gradient(125deg, #0b3158 0%, #0d5f9f 58%, #49a4dc 100%);
