@@ -43,7 +43,7 @@ ANALYSIS_MODES = (
 
 st.set_page_config(
     page_title="BladeScope | Wind Turbine Blade Defect Recognition", page_icon="🌬️", layout="wide",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state="auto",
 )
 st.markdown(
     """
