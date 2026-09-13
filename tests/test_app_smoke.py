@@ -60,6 +60,29 @@ def test_application_v3_leads_with_auto_detection():
     assert "ultralytics" not in source.lower()
 
 
+def test_application_v3_uses_the_available_workspace_width():
+    source = APP_PATH.read_text(encoding="utf-8")
+    container_css = source[source.index(".block-container {"):source.index(".hero {")]
+    assert "box-sizing: border-box" in container_css
+    assert "width: 100%" in container_css
+    assert "max-width: 1600px" in container_css
+    assert "clamp(1rem, 2.25vw, 2.75rem)" in container_css
+    assert 'initial_sidebar_state="auto"' in source
+    assert "@media (max-width: 700px)" in source
+    assert ".block-container { padding: .8rem .8rem 2.25rem; }" in source
+    assert "@media (max-width: 480px)" in source
+    assert ".block-container { padding-top: 4rem; }" in source
+
+
+def test_home_balances_primary_workflow_with_workspace_status():
+    source = APP_PATH.read_text(encoding="utf-8")
+    home = source[source.index("def render_home"):source.index("def render_prepared")]
+    assert 'st.columns([1.7, 1], gap="large")' in home
+    assert "WORKSPACE STATUS" in home
+    assert "Ready for local analysis" in home
+    assert "Current apparatus" not in home
+
+
 def test_removed_status_copy_does_not_return_to_the_site():
     source = APP_PATH.read_text(encoding="utf-8")
     assert "Application v2 · prepared crop + manual" not in source

@@ -76,6 +76,17 @@ def validate(root: Path) -> dict[str, Any]:
         raise RuntimeError("The Application v3 workflow copy is incomplete.")
     if 'class="turbine-scene"' not in app_source or 'class="brand-lockup"' not in app_source:
         raise RuntimeError("The BladeScope wind-turbine design treatment is incomplete.")
+    container_css = app_source[app_source.index(".block-container {"):app_source.index(".hero {")]
+    required_layout_css = (
+        "box-sizing: border-box",
+        "width: 100%",
+        "max-width: 1600px",
+        "clamp(1rem, 2.25vw, 2.75rem)",
+    )
+    if not all(rule in container_css for rule in required_layout_css):
+        raise RuntimeError("The BladeScope wide-workspace layout contract is incomplete.")
+    if 'initial_sidebar_state="auto"' not in app_source:
+        raise RuntimeError("The BladeScope sidebar does not adapt to the viewport.")
     if "gatherUsageStats = false" not in streamlit_config:
         raise RuntimeError("Streamlit telemetry is not disabled.")
     manifest = read_rows(root / "data/processed/wtbd_crops_v1/manifest.csv")
