@@ -83,6 +83,15 @@ def test_application_motion_is_subtle_and_respects_user_preferences():
     assert "animation: none !important" in source
 
 
+def test_user_triggered_analysis_has_consistent_status_feedback():
+    source = APP_PATH.read_text(encoding="utf-8")
+    assert "def analysis_status" in source
+    assert "st.status(label, expanded=True)" in source
+    assert 'state="complete"' in source
+    assert 'state="error"' in source
+    assert source.count("with analysis_status(") == 7
+
+
 def test_home_balances_primary_workflow_with_workspace_status():
     source = APP_PATH.read_text(encoding="utf-8")
     home = source[source.index("def render_home"):source.index("def render_prepared")]

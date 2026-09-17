@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterator
+from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
 
@@ -201,6 +203,20 @@ def cached_proposal_detector():
     return load_proposal_detector(ROOT)
 
 
+@contextmanager
+def analysis_status(label: str, completed_label: str) -> Iterator[Any]:
+    """Show consistent feedback around a user-triggered analysis."""
+    status = st.status(label, expanded=True)
+    status.write("Preparing the image and checking the required model assets.")
+    try:
+        yield status
+    except Exception:
+        status.update(label="Analysis stopped", state="error", expanded=True)
+        raise
+    else:
+        status.update(label=completed_label, state="complete", expanded=False)
+
+
 def initialize_session() -> None:
     st.session_state.setdefault("analysis_records", [])
     st.session_state.setdefault("source_images", {})
@@ -364,7 +380,7 @@ def render_prepared() -> None:
     left.image(decoded.image, caption="Uploaded crop", width="stretch")
     right.image(model_input, caption="Exact RGB 224×224 model input", width="stretch")
     if st.button("Classify and add prepared crop", type="primary", key="prepared_classify"):
-        with st.spinner("Running the frozen model on CPU…"):
+        with analysis_status("Classifying the prepared crop…", "Prepared crop classified"):
             record = classify_record(mode="prepared_crop", decoded=decoded, model_input=model_input)
             add_record(record)
             st.session_state["latest_region_id"] = record.region_id
@@ -401,7 +417,7 @@ def render_manual_single() -> None:
     left.image(annotated_selection(decoded.image, crop), caption="Cobalt: your rectangle · Sky blue: contextual crop", width="stretch")
     right.image(crop.model_input, caption="Exact contextual RGB 224×224 model input", width="stretch")
     if st.button("Classify and add selected region", type="primary", key="single_classify"):
-        with st.spinner("Running the frozen model on CPU…"):
+        with analysis_status("Classifying the selected region…", "Selected region classified"):
             geometry = crop.geometry
             record = classify_record(
                 mode="manual_single_region", decoded=decoded, model_input=crop.model_input,
@@ -445,7 +461,7 @@ def render_manual_multi() -> None:
     contextual_box = (geometry.crop_xmin, geometry.crop_ymin, geometry.crop_xmax, geometry.crop_ymax)
     action_left, action_mid, action_right = st.columns(3)
     if action_left.button("Add and classify region", type="primary", width="stretch", key="multi_add"):
-        with st.spinner("Classifying and saving this region…"):
+        with analysis_status("Classifying and saving this region…", "Region classified and saved"):
             record = classify_record(
                 mode="manual_multi_region", decoded=decoded, model_input=crop.model_input,
                 selected_box=selected.as_tuple(), contextual_box=contextual_box,
@@ -458,7 +474,7 @@ def render_manual_multi() -> None:
         key=f"multi_selected_{decoded.byte_sha256[:8]}",
     ) if source_records else None
     if action_right.button("Replace with current rectangle", width="stretch", disabled=not selected_id, key="multi_replace"):
-        with st.spinner("Reclassifying the replacement region…"):
+        with analysis_status("Reclassifying the replacement region…", "Saved region replaced"):
             replacement = classify_record(
                 mode="manual_multi_region", decoded=decoded, model_input=crop.model_input,
                 selected_box=selected.as_tuple(), contextual_box=contextual_box, replacement_id=selected_id,
@@ -502,7 +518,7 @@ def render_automatic_proposals() -> None:
     save_source(decoded)
     proposal_store = st.session_state["proposal_results"]
     if st.button("Detect defect regions", type="primary", key="automatic_generate"):
-        with st.spinner("Detecting defect regions…"):
+        with analysis_status("Scanning the blade image for defect regions…", "Region detection complete"):
             proposal_store[decoded.byte_sha256] = propose_regions(
                 cached_proposal_detector(), decoded.image
             )
@@ -543,7 +559,7 @@ def render_automatic_proposals() -> None:
         disabled=not selected_ids or not confirmed,
     ):
         accepted = reviewed_proposals(proposals, selected_ids, reviewed=confirmed)
-        with st.spinner("Applying the frozen contextual crop and six-category classifier…"):
+        with analysis_status("Classifying the reviewed regions…", "Reviewed regions classified"):
             for proposal in accepted:
                 crop = contextual_crop(decoded.image, proposal.box)
                 geometry = crop.geometry
@@ -643,7 +659,7 @@ def render_compare() -> None:
             f"{selected.detector_confidence:.6f}; this is separate from classifier scores."
         )
     if st.button("Generate Grad-CAM for selected region", key="compare_gradcam"):
-        with st.spinner("Generating a read-only activation visualization…"):
+        with analysis_status("Generating the activation visualization…", "Activation visualization ready"):
             visual = generate_gradcam(cached_model(), selected.model_input, selected.predicted_class_id)
             st.session_state["analysis_records"] = replace_region(items, with_gradcam(selected, visual.overlay))
             st.rerun()
