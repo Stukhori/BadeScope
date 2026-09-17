@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Iterator
 from contextlib import contextmanager
+from html import escape
 from pathlib import Path
 from typing import Any
 
@@ -101,6 +102,18 @@ st.markdown(
     .status-row strong { color:#102a43; text-align:right; }
     .eyebrow { color: #116eaf; font-size: .76rem; font-weight: 800; letter-spacing: .08em; }
     .status-ok { border-left: 4px solid #2589c9; background: #e8f4fc; padding: .8rem 1rem; border-radius: 10px; }
+    .upload-ready {
+        display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+        margin: .2rem 0 .85rem; padding: .72rem .9rem;
+        border: 1px solid #b9dbea; border-radius: 11px;
+        color: #234e6d; background: rgba(234,245,253,.88);
+        animation: bladescope-fade .28s ease-out both;
+    }
+    .upload-ready-main { min-width: 0; display: flex; align-items: center; gap: .6rem; }
+    .upload-ready-dot { width: .62rem; height: .62rem; flex: 0 0 auto; border-radius: 50%;
+                        background: #1f9d79; box-shadow: 0 0 0 .25rem rgba(31,157,121,.12); }
+    .upload-ready-name { overflow: hidden; color: #102a43; font-weight: 750; text-overflow: ellipsis; white-space: nowrap; }
+    .upload-ready-meta { flex: 0 0 auto; color: #53758f; font-size: .82rem; font-variant-numeric: tabular-nums; }
     div[data-testid="stMetric"] { background:rgba(255,255,255,.90); border:1px solid #c9deed; padding:.7rem; border-radius:12px; }
     div[data-testid="stFileUploader"] { background:rgba(255,255,255,.90); border:1px solid #c9deed; border-radius:14px; padding:.55rem .8rem; }
     div.stButton > button, div.stDownloadButton > button {
@@ -165,13 +178,14 @@ st.markdown(
         .turbine-scene { display:none; }
         .card { padding:.9rem 1rem; }
         .status-row { align-items:flex-start; }
+        .upload-ready { align-items:flex-start; flex-direction:column; gap:.25rem; }
     }
     @media (max-width: 480px) {
         .block-container { padding-top: 4rem; }
     }
     @media (prefers-reduced-motion: reduce) {
         .hero, .card, div[data-testid="stMetric"], div[data-testid="stDataFrame"],
-        div[data-testid="stImage"], [data-testid="stSpinner"]::after {
+        div[data-testid="stImage"], .upload-ready, [data-testid="stSpinner"]::after {
             animation: none !important;
         }
         div.stButton > button, div.stDownloadButton > button,
@@ -231,6 +245,20 @@ def records() -> list[RegionRecord]:
 
 def save_source(decoded: Any) -> None:
     st.session_state["source_images"][decoded.byte_sha256] = decoded.image.copy()
+
+
+def render_upload_summary(decoded: Any) -> None:
+    """Confirm the validated upload without exposing unsafe filename markup."""
+    width, height = decoded.image.size
+    size_kib = decoded.byte_count / 1024
+    st.markdown(
+        '<div class="upload-ready" role="status">'
+        '<div class="upload-ready-main"><span class="upload-ready-dot" aria-hidden="true"></span>'
+        f'<span class="upload-ready-name">{escape(decoded.filename)}</span></div>'
+        f'<span class="upload-ready-meta">{width} × {height} px · {size_kib:,.1f} KiB</span>'
+        '</div>',
+        unsafe_allow_html=True,
+    )
 
 
 def add_record(record: RegionRecord) -> None:
@@ -375,6 +403,7 @@ def render_prepared() -> None:
         return
     decoded = decode_upload(uploaded.getvalue(), uploaded.name)
     save_source(decoded)
+    render_upload_summary(decoded)
     model_input = prepare_region(decoded.image)
     left, right = st.columns(2)
     left.image(decoded.image, caption="Uploaded crop", width="stretch")
@@ -412,6 +441,7 @@ def render_manual_single() -> None:
         return
     decoded = decode_upload(uploaded.getvalue(), uploaded.name)
     save_source(decoded)
+    render_upload_summary(decoded)
     selected, crop = manual_selection(decoded, key=f"single_cropper_{decoded.byte_sha256[:12]}")
     left, right = st.columns([1.35, 1])
     left.image(annotated_selection(decoded.image, crop), caption="Cobalt: your rectangle · Sky blue: contextual crop", width="stretch")
@@ -449,6 +479,7 @@ def render_manual_multi() -> None:
         return
     decoded = decode_upload(uploaded.getvalue(), uploaded.name)
     save_source(decoded)
+    render_upload_summary(decoded)
     st.session_state["multi_active_hash"] = decoded.byte_sha256
     source_records = [item for item in records() if item.source_sha256 == decoded.byte_sha256 and item.mode == "manual_multi_region"]
     if source_records:
@@ -516,6 +547,7 @@ def render_automatic_proposals() -> None:
         return
     decoded = decode_upload(uploaded.getvalue(), uploaded.name)
     save_source(decoded)
+    render_upload_summary(decoded)
     proposal_store = st.session_state["proposal_results"]
     if st.button("Detect defect regions", type="primary", key="automatic_generate"):
         with analysis_status("Scanning the blade image for defect regions…", "Region detection complete"):
@@ -560,7 +592,8 @@ def render_automatic_proposals() -> None:
     ):
         accepted = reviewed_proposals(proposals, selected_ids, reviewed=confirmed)
         with analysis_status("Classifying the reviewed regions…", "Reviewed regions classified"):
-            for proposal in accepted:
+            progress = st.progress(0.0, text=f"Classifying 0 of {len(accepted)} regions")
+            for index, proposal in enumerate(accepted, start=1):
                 crop = contextual_crop(decoded.image, proposal.box)
                 geometry = crop.geometry
                 record = classify_record(
@@ -577,6 +610,9 @@ def render_automatic_proposals() -> None:
                 )
                 add_record(record)
                 st.session_state["latest_region_id"] = record.region_id
+                progress.progress(
+                    index / len(accepted), text=f"Classifying {index} of {len(accepted)} regions"
+                )
         st.rerun()
 
     accepted_records = [

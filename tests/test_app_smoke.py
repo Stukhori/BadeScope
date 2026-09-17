@@ -92,6 +92,15 @@ def test_user_triggered_analysis_has_consistent_status_feedback():
     assert source.count("with analysis_status(") == 7
 
 
+def test_validated_uploads_and_batch_work_have_visible_progress():
+    source = APP_PATH.read_text(encoding="utf-8")
+    assert "def render_upload_summary" in source
+    assert "escape(decoded.filename)" in source
+    assert source.count("render_upload_summary(decoded)") == 4
+    assert "st.progress(0.0" in source
+    assert "index / len(accepted)" in source
+
+
 def test_home_balances_primary_workflow_with_workspace_status():
     source = APP_PATH.read_text(encoding="utf-8")
     home = source[source.index("def render_home"):source.index("def render_prepared")]
