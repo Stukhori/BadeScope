@@ -74,6 +74,15 @@ def test_application_v3_uses_the_available_workspace_width():
     assert ".block-container { padding-top: 4rem; }" in source
 
 
+def test_application_motion_is_subtle_and_respects_user_preferences():
+    source = APP_PATH.read_text(encoding="utf-8")
+    assert "@keyframes bladescope-rise" in source
+    assert "@keyframes bladescope-loading" in source
+    assert "translateY(-2px)" in source
+    assert "@media (prefers-reduced-motion: reduce)" in source
+    assert "animation: none !important" in source
+
+
 def test_home_balances_primary_workflow_with_workspace_status():
     source = APP_PATH.read_text(encoding="utf-8")
     home = source[source.index("def render_home"):source.index("def render_prepared")]

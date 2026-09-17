@@ -101,7 +101,54 @@ st.markdown(
     .status-ok { border-left: 4px solid #2589c9; background: #e8f4fc; padding: .8rem 1rem; border-radius: 10px; }
     div[data-testid="stMetric"] { background:rgba(255,255,255,.90); border:1px solid #c9deed; padding:.7rem; border-radius:12px; }
     div[data-testid="stFileUploader"] { background:rgba(255,255,255,.90); border:1px solid #c9deed; border-radius:14px; padding:.55rem .8rem; }
-    div.stButton > button, div.stDownloadButton > button { border-radius: 10px; }
+    div.stButton > button, div.stDownloadButton > button {
+        border-radius: 10px;
+        transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+    }
+    div.stButton > button:hover:not(:disabled), div.stDownloadButton > button:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 18px rgba(18, 76, 122, .16);
+    }
+    div.stButton > button:active:not(:disabled), div.stDownloadButton > button:active:not(:disabled) {
+        transform: translateY(0);
+        box-shadow: 0 3px 8px rgba(18, 76, 122, .12);
+    }
+    div[data-testid="stFileUploader"] {
+        transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+    }
+    div[data-testid="stFileUploader"]:focus-within {
+        border-color: #2b8fd2;
+        box-shadow: 0 0 0 3px rgba(43,143,210,.16);
+        transform: translateY(-1px);
+    }
+    [data-testid="stSpinner"] {
+        position: relative; overflow: hidden; padding: .8rem 1rem;
+        border: 1px solid #c9deed; border-radius: 12px;
+        background: rgba(255,255,255,.88);
+        box-shadow: 0 8px 22px rgba(23,75,116,.09);
+    }
+    [data-testid="stSpinner"]::after {
+        content: ""; position: absolute; left: 0; bottom: 0; height: 3px; width: 42%;
+        border-radius: 999px; background: linear-gradient(90deg, #2b8fd2, #62c3ef);
+        animation: bladescope-loading 1.25s ease-in-out infinite alternate;
+    }
+    .hero { animation: bladescope-rise .45s ease-out both; }
+    .card { animation: bladescope-rise .42s ease-out both; }
+    div[data-testid="stMetric"], div[data-testid="stDataFrame"], div[data-testid="stImage"] {
+        animation: bladescope-fade .32s ease-out both;
+    }
+    @keyframes bladescope-rise {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes bladescope-fade {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    @keyframes bladescope-loading {
+        from { transform: translateX(-12%); }
+        to { transform: translateX(150%); }
+    }
     .brand-lockup { display:flex; align-items:center; gap:.75rem; padding:.35rem .2rem .8rem; }
     .brand-mark { display:grid; place-items:center; width:2.8rem; height:2.8rem; border-radius:14px;
                   color:white; background:linear-gradient(145deg,#0b4f83,#2b98d4);
@@ -119,6 +166,14 @@ st.markdown(
     }
     @media (max-width: 480px) {
         .block-container { padding-top: 4rem; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+        .hero, .card, div[data-testid="stMetric"], div[data-testid="stDataFrame"],
+        div[data-testid="stImage"], [data-testid="stSpinner"]::after {
+            animation: none !important;
+        }
+        div.stButton > button, div.stDownloadButton > button,
+        div[data-testid="stFileUploader"] { transition: none !important; }
     }
     </style>
     """,
