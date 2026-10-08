@@ -28,6 +28,7 @@ from windblade_demo.explain import generate_gradcam
 from windblade_demo.exports import annotated_image_export, csv_export, json_export
 from windblade_demo.inference import FrozenModelError, infer, load_frozen_model
 from windblade_demo.inputs import UploadValidationError, decode_upload
+from windblade_demo.landing import render_landing
 from windblade_demo.research import FrozenResearchError, load_phase10
 from windblade_demo.session import (
     RegionRecord, make_region_record, remove_region, replace_region, with_gradcam,
@@ -352,6 +353,8 @@ def go_to_analysis(mode: str) -> None:
 
 
 def render_home() -> None:
+    render_landing(ROOT)
+    st.markdown('<div id="classification-workspace"></div>', unsafe_allow_html=True)
     render_hero(
         "Detect and classify blade defects",
         "Upload a blade image, detect likely defect regions automatically, review the results, and classify each selected region.",
