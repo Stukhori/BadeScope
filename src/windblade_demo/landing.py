@@ -10,7 +10,18 @@ from windblade_demo.constants import HUMAN_LABELS
 
 
 def render_landing(root: Path) -> None:
-    assets = root / "app/assets/landing"
+    base = root / "app/assets/landing"
+    cases = json.loads((base / "cases.json").read_text(encoding="utf-8"))
+    index = st.session_state.get("landing_case", 0) % len(cases)
+
+    def change_case(step: int) -> None:
+        st.session_state["landing_case"] = (index + step) % len(cases)
+
+    previous, current, following = st.columns([1, 3, 1])
+    previous.button("← Previous case", key="landing_previous", on_click=change_case, args=(-1,), width="stretch")
+    current.markdown(f'<div class="case-counter">EXAMPLE {index + 1} OF {len(cases)} · BLADE IMAGE {cases[index]["id"]}</div>', unsafe_allow_html=True)
+    following.button("Next case →", key="landing_next", on_click=change_case, args=(1,), width="stretch")
+    assets = base / cases[index]["directory"]
     prediction = json.loads((assets / "prediction.json").read_text(encoding="utf-8"))
 
     def image(name: str, alt: str) -> str:
@@ -34,7 +45,7 @@ def render_landing(root: Path) -> None:
         '<a class="classify-link" href="#classification-workspace" target="_self">Classify <span aria-hidden="true">↓</span></a>'
         '<div class="landing-meta">6 defect categories · Region review · Local processing</div></div>'
         '<figure class="landing-figure"><div class="preview-toolbar"><span class="preview-dot"></span>'
-        'DETECTION PREVIEW <span>01 / REGION PROPOSALS</span></div>'
+        f'DETECTION PREVIEW <span>CASE {index + 1:02d} / REGION PROPOSALS</span></div>'
         + image("regions.jpg", "Real blade image with outlined detector proposals")
         + '<figcaption>Real detector output. Review the outlined regions before classification.</figcaption></figure></div>'
         '<div class="landing-section-label"><div class="eyebrow">FROM IMAGE TO INSIGHT</div>'
@@ -46,7 +57,7 @@ def render_landing(root: Path) -> None:
         '<article class="preview-card"><div class="step-number">02 / CLASSIFY</div>'
         '<h3>' + escape(HUMAN_LABELS[prediction["predicted_label"]]) + '</h3>'
         '<div class="crop-preview">' + image("crop.png", "Exact 224 by 224 RGB input for the example prediction")
-        + '<span>Selected region<br><strong>224 × 224 model input</strong></span></div>' + bars
+        + f'<span>Selected region {escape(prediction["proposal_id"])}<br><strong>224 × 224 model input</strong></span></div>' + bars
         + '<p>The classifier scores six categories for the selected crop. Scores are model outputs, '
         'not calibrated probabilities.</p></article>'
         '<article class="preview-card"><div class="step-number">03 / EXPLORE</div>'
@@ -62,6 +73,7 @@ def render_landing(root: Path) -> None:
     html, [data-testid="stAppViewContainer"] { scroll-behavior:smooth; }
     #classification-workspace { scroll-margin-top:5rem; }
     .landing { margin:1.5rem 0 3rem; }
+    .case-counter { text-align:center; color:#53758f; padding:.65rem 0; font-size:.75rem; letter-spacing:.06em; }
     .landing-intro { display:grid; grid-template-columns:1.05fr 1fr; gap:3rem; align-items:center; }
     .landing h1 { color:#0b3158; font-size:clamp(2.4rem,4.5vw,4.4rem); line-height:1.05; letter-spacing:-.045em; margin:1rem 0; }
     .landing-intro p { color:#46677f; font-size:1.15rem; line-height:1.7; max-width:35rem; }
