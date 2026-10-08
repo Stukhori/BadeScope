@@ -17,10 +17,6 @@ def render_landing(root: Path) -> None:
     def change_case(step: int) -> None:
         st.session_state["landing_case"] = (index + step) % len(cases)
 
-    previous, current, following = st.columns([1, 3, 1])
-    previous.button("← Previous case", key="landing_previous", on_click=change_case, args=(-1,), width="stretch")
-    current.markdown(f'<div class="case-counter">EXAMPLE {index + 1} OF {len(cases)} · BLADE IMAGE {cases[index]["id"]}</div>', unsafe_allow_html=True)
-    following.button("Next case →", key="landing_next", on_click=change_case, args=(1,), width="stretch")
     assets = base / cases[index]["directory"]
     prediction = json.loads((assets / "prediction.json").read_text(encoding="utf-8"))
 
@@ -36,18 +32,23 @@ def render_landing(root: Path) -> None:
         for label, score in sorted(prediction["scores"].items(), key=lambda item: item[1], reverse=True)
     )
     categories = "".join(f'<span>{escape(label)}</span>' for label in HUMAN_LABELS.values())
-    html = (
-        '<section class="landing"><div class="landing-intro"><div>'
+    introduction = (
+        '<section class="landing landing-intro">'
         '<div class="eyebrow">BLADESCOPE / BLADE DEFECT RECOGNITION</div>'
         '<h1>See the damage.<br>Understand the prediction.</h1>'
         '<p>Turn blade inspection images into regions you can review, predictions you can compare, '
         'and visual explanations you can explore.</p>'
         '<a class="classify-link" href="#classification-workspace" target="_self">Classify <span aria-hidden="true">↓</span></a>'
-        '<div class="landing-meta">6 defect categories · Region review · Local processing</div></div>'
+        '<div class="landing-meta">6 defect categories · Region review · Local processing</div></section>'
+    )
+    preview = (
         '<figure class="landing-figure"><div class="preview-toolbar"><span class="preview-dot"></span>'
         f'DETECTION PREVIEW <span>CASE {index + 1:02d} / REGION PROPOSALS</span></div>'
         + image("regions.jpg", "Real blade image with outlined detector proposals")
-        + '<figcaption>Real detector output. Review the outlined regions before classification.</figcaption></figure></div>'
+        + '<figcaption>Real detector output. Review the outlined regions before classification.</figcaption></figure>'
+    )
+    html = (
+        '<section class="landing">'
         '<div class="landing-section-label"><div class="eyebrow">FROM IMAGE TO INSIGHT</div>'
         '<h2>What happens when you classify?</h2><p>One example, three views of the same analysis.</p></div>'
         '<div class="landing-steps"><article class="preview-card"><div class="step-number">01 / FIND</div>'
@@ -74,7 +75,10 @@ def render_landing(root: Path) -> None:
     #classification-workspace { scroll-margin-top:5rem; }
     .landing { margin:1.5rem 0 3rem; }
     .case-counter { text-align:center; color:#53758f; padding:.65rem 0; font-size:.75rem; letter-spacing:.06em; }
-    .landing-intro { display:grid; grid-template-columns:1.05fr 1fr; gap:3rem; align-items:center; }
+    .landing-intro { padding-top:1rem; }
+    .st-key-landing_preview { padding-top:1.5rem; }
+    .st-key-landing_previous button, .st-key-landing_next button { background:#0b3158; color:white; border:1px solid #0b3158; min-height:2.8rem; font-weight:700; }
+    .st-key-landing_previous button:hover, .st-key-landing_next button:hover { background:#0b5e99; color:white; }
     .landing h1 { color:#0b3158; font-size:clamp(2.4rem,4.5vw,4.4rem); line-height:1.05; letter-spacing:-.045em; margin:1rem 0; }
     .landing-intro p { color:#46677f; font-size:1.15rem; line-height:1.7; max-width:35rem; }
     a.classify-link { display:inline-flex; align-items:center; gap:2rem; background:#0b5e99; color:white; padding:.9rem 1.5rem; border-radius:10px; font-weight:750; text-decoration:none; margin:.8rem 0; }
@@ -111,4 +115,14 @@ def render_landing(root: Path) -> None:
     @media(max-width:900px) { .landing-intro { grid-template-columns:1fr; gap:1.5rem; } .landing-steps { grid-template-columns:1fr; } .preview-card > img { height:260px; } }
     @media(prefers-reduced-motion:reduce) { html, [data-testid="stAppViewContainer"] { scroll-behavior:auto; } }
     </style>""", unsafe_allow_html=True)
+    copy, visual = st.columns([1.05, 1], gap="large")
+    with copy:
+        st.markdown(introduction, unsafe_allow_html=True)
+    with visual:
+        with st.container(key="landing_preview"):
+            st.markdown(preview, unsafe_allow_html=True)
+            previous, following = st.columns(2)
+            previous.button("← Previous case", key="landing_previous", on_click=change_case, args=(-1,), width="stretch")
+            following.button("Next case →", key="landing_next", on_click=change_case, args=(1,), width="stretch")
+            st.markdown(f'<div class="case-counter">EXAMPLE {index + 1} OF {len(cases)} · BLADE IMAGE {cases[index]["id"]}</div>', unsafe_allow_html=True)
     st.markdown(html, unsafe_allow_html=True)
