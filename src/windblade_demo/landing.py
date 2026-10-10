@@ -42,10 +42,8 @@ def render_landing(root: Path) -> None:
         '<div class="landing-meta">6 defect categories · Region review · Local processing</div></section>'
     )
     preview = (
-        '<figure class="landing-figure"><div class="preview-toolbar"><span class="preview-dot"></span>'
+        '<div class="preview-toolbar"><span class="preview-dot"></span>'
         f'DETECTION PREVIEW <span>CASE {index + 1:02d} / REGION PROPOSALS</span></div>'
-        + image("regions.jpg", "Real blade image with outlined detector proposals")
-        + '<figcaption>Real detector output. Review the outlined regions before classification.</figcaption></figure>'
     )
     html = (
         '<section class="landing">'
@@ -76,9 +74,16 @@ def render_landing(root: Path) -> None:
     .landing { margin:1.5rem 0 3rem; }
     .case-counter { text-align:center; color:#53758f; padding:.65rem 0; font-size:.75rem; letter-spacing:.06em; }
     .landing-intro { padding-top:1rem; }
-    .st-key-landing_preview { padding-top:1.5rem; }
-    .st-key-landing_previous button, .st-key-landing_next button { background:#0b3158; color:white; border:1px solid #0b3158; min-height:2.8rem; font-weight:700; }
+    .st-key-landing_preview { margin-top:1.5rem; gap:0; background:#fff; border:1px solid #c9deed; border-radius:18px; overflow:hidden; box-shadow:0 20px 45px #174b7418; }
+    .st-key-landing_image { position:relative; gap:0; }
+    .st-key-landing_image img { width:100%; height:320px; object-fit:contain; background:#e9eff3; display:block; }
+    .st-key-landing_previous, .st-key-landing_next { position:absolute; top:50%; transform:translateY(-50%); width:auto !important; z-index:2; }
+    .st-key-landing_previous { left:.75rem; }
+    .st-key-landing_next { right:.75rem; }
+    .st-key-landing_previous button, .st-key-landing_next button { background:#0b3158; color:white; border:1px solid #ffffff80; width:2.75rem; height:2.75rem; min-height:2.75rem; padding:0; border-radius:50%; box-shadow:0 3px 12px #0b315833; }
+    .st-key-landing_previous button p, .st-key-landing_next button p { font-size:1.5rem; line-height:1; }
     .st-key-landing_previous button:hover, .st-key-landing_next button:hover { background:#0b5e99; color:white; }
+    .preview-caption { padding:.85rem 1rem; color:#53758f; font-size:.8rem; }
     .landing h1 { color:#0b3158; font-size:clamp(2.4rem,4.5vw,4.4rem); line-height:1.05; letter-spacing:-.045em; margin:1rem 0; }
     .landing-intro p { color:#46677f; font-size:1.15rem; line-height:1.7; max-width:35rem; }
     a.classify-link { display:inline-flex; align-items:center; gap:2rem; background:#0b5e99; color:white; padding:.9rem 1.5rem; border-radius:10px; font-weight:750; text-decoration:none; margin:.8rem 0; }
@@ -121,8 +126,10 @@ def render_landing(root: Path) -> None:
     with visual:
         with st.container(key="landing_preview"):
             st.markdown(preview, unsafe_allow_html=True)
-            previous, following = st.columns(2)
-            previous.button("← Previous case", key="landing_previous", on_click=change_case, args=(-1,), width="stretch")
-            following.button("Next case →", key="landing_next", on_click=change_case, args=(1,), width="stretch")
+            with st.container(key="landing_image"):
+                st.markdown(image("regions.jpg", "Real blade image with outlined detector proposals"), unsafe_allow_html=True)
+                st.button("←", key="landing_previous", help="Previous example", on_click=change_case, args=(-1,))
+                st.button("→", key="landing_next", help="Next example", on_click=change_case, args=(1,))
+            st.markdown('<div class="preview-caption">Real detector output. Review the outlined regions before classification.</div>', unsafe_allow_html=True)
             st.markdown(f'<div class="case-counter">EXAMPLE {index + 1} OF {len(cases)} · BLADE IMAGE {cases[index]["id"]}</div>', unsafe_allow_html=True)
     st.markdown(html, unsafe_allow_html=True)

@@ -21,8 +21,10 @@ def test_landing_cases_stay_synchronized_and_wrap():
         return next(item.value for item in app.markdown if '<section class="landing">' in item.value)
 
     initial = check(0)
-    preview_container = next(block for block in app.get("flex_container") if block.proto.id.endswith("-landing_preview"))
+    preview_container = next(block for block in app.get("flex_container") if block.proto.id.endswith("-landing_image"))
     assert {button.key for button in preview_container.button} == {"landing_previous", "landing_next"}
+    assert app.button(key="landing_previous").label == "←"
+    assert app.button(key="landing_next").label == "→"
     app.button(key="landing_next").click().run(timeout=30)
     assert check(1) != initial
     app.button(key="landing_previous").click().run(timeout=30)
