@@ -1,0 +1,20 @@
+{
+  "source": "data\\raw\\wtbd\\WT blade defect dataset\\JPEGImages\\10.jpg",
+  "checkpoint_state_fingerprint": "3c17629d1b1748e2f3d9046cb9a3d88c6369786acc1381f105974396c0f46757",
+  "proposal_id": "P1",
+  "box": [
+    506,
+    323,
+    884,
+    462
+  ],
+  "predicted_label": "thunderstrike",
+  "scores": {
+    "craze": 3.189758717780933e-05,
+    "corrosion": 5.2640203648479655e-05,
+    "surface_injure": 0.0011473651975393295,
+    "thunderstrike": 0.9986832737922668,
+    "crack": 1.1665454621834215e-05,
+    "hide_craze": 7.305156032089144e-05
+  }
+}

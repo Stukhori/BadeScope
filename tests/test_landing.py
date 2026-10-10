@@ -10,6 +10,11 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def test_landing_cases_stay_synchronized_and_wrap():
     cases = json.loads((ROOT / "app/assets/landing/cases.json").read_text(encoding="utf-8"))
+    labels = {
+        json.loads((ROOT / "app/assets/landing" / case["directory"] / "prediction.json").read_text(encoding="utf-8"))["predicted_label"]
+        for case in cases
+    }
+    assert labels == {"craze", "surface_injure", "thunderstrike", "corrosion"}
     app = AppTest.from_file(str(ROOT / "app/app.py")).run(timeout=30)
 
     def check(index):
