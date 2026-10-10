@@ -14,6 +14,12 @@ Application v3 is publicly deployed as a Streamlit research demonstration at [ht
 - Streamlit configuration: `.streamlit/config.toml`
 - Secrets: none
 
+The public app hides Community Cloud's creator-avatar profile link with a
+same-origin stylesheet injected by `windblade_demo.chrome`. Streamlit's hosting
+badge remains visible. This is a presentation preference, not access control:
+the public creator profile still exists, and changes to Community Cloud's wrapper
+markup may require updating the selector. Cross-origin embedding is left alone.
+
 The entrypoint-local dependency file pins Streamlit `1.62.0`, streamlit-cropper `0.3.1`, OpenCV Headless `4.11.0.86`, Ultralytics `8.3.150`, PyTorch `2.13.0+cpu`, torchvision `0.28.0+cpu`, and the remaining validated application packages. The exact frozen crop-classifier checkpoint and detector proposal checkpoint are tracked. No runtime model download is required.
 
 The application does not call OpenCV GUI, Qt/GTK window, or OpenGL display functions. It therefore uses only `opencv-python-headless==4.11.0.86`. The repository deliberately has no root `packages.txt`, so Streamlit Community Cloud skips apt processing and the application does not depend on `libGL.so.1` or `libgthread-2.0.so.0`.

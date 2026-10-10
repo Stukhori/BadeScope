@@ -15,6 +15,7 @@ from windblade_demo.constants import (
     APPLICATION_VERSION, CHECKPOINT_STATE_FINGERPRINT, CLASS_DESCRIPTIONS,
     CLASS_LABELS, HUMAN_LABELS, MODEL_DISPLAY_NAME, PREPROCESSING_CONTRACT,
 )
+from windblade_demo.chrome import hide_creator_profile
 from windblade_demo.crops import (
     SelectionValidationError, annotated_selection, contextual_crop, display_image,
     map_display_box, prepare_region,
@@ -49,6 +50,7 @@ st.set_page_config(
     page_title="BladeScope | Wind Turbine Blade Defect Recognition", page_icon="🌬️", layout="wide",
     initial_sidebar_state="auto",
 )
+hide_creator_profile()
 st.markdown(
     """
     <style>
