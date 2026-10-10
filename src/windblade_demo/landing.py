@@ -75,9 +75,10 @@ def render_landing(root: Path) -> None:
     .case-counter { text-align:center; color:#53758f; padding:.65rem 0; font-size:.75rem; letter-spacing:.06em; }
     .landing-intro { padding-top:1rem; margin-bottom:.75rem; }
     .st-key-landing_preview { margin-top:1.5rem; gap:0; background:#fff; border:1px solid #c9deed; border-radius:18px; overflow:hidden; box-shadow:0 20px 45px #174b7418; }
+    .st-key-landing_preview .stMarkdown > div > div { margin-bottom:0; }
     .st-key-landing_image { position:relative; gap:0; }
     .st-key-landing_image img { width:100%; height:320px; object-fit:contain; background:#e9eff3; display:block; }
-    .st-key-landing_previous, .st-key-landing_next { position:absolute; top:50%; transform:translateY(-50%); width:auto !important; z-index:2; }
+    .st-key-landing_previous, .st-key-landing_next { position:absolute; top:50%; transform:translateY(-50%); width:auto !important; height:2.75rem !important; z-index:2; }
     .st-key-landing_previous { left:.75rem; }
     .st-key-landing_next { right:.75rem; }
     .st-key-landing_previous button, .st-key-landing_next button { background:#0b3158; color:white; border:1px solid #ffffff80; width:2.75rem; height:2.75rem; min-height:2.75rem; padding:0; border-radius:50%; box-shadow:0 3px 12px #0b315833; }
