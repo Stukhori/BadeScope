@@ -48,7 +48,8 @@ def render_landing(root: Path) -> None:
     html = (
         '<section class="landing">'
         '<div class="landing-section-label"><div class="eyebrow">FROM IMAGE TO INSIGHT</div>'
-        '<h2>What happens when you classify?</h2><p>One example, three views of the same analysis.</p></div>'
+        '<div class="landing-section-copy"><h2>What happens when you classify?</h2>'
+        '<p>One example, three views of the same analysis.</p></div></div>'
         '<div class="landing-steps"><article class="preview-card"><div class="step-number">01 / FIND</div>'
         '<h3>Locate a region</h3>' + image("source.jpg", "Original blade inspection image before detection")
         + '<p>Upload a full image and detect candidate regions, or draw your own rectangle. '
@@ -97,8 +98,10 @@ def render_landing(root: Path) -> None:
     .preview-dot { width:.5rem; height:.5rem; background:#65dbbb; border-radius:50%; }
     .landing-figure img { width:100%; height:320px; object-fit:contain; background:#e9eff3; display:block; }
     .landing-figure figcaption { padding:.85rem 1rem; color:#53758f; font-size:.8rem; }
-    .landing-section-label { margin:0 0 1.25rem; }
-    .landing-section-label h2 { margin:.3rem 0; color:#0b3158; letter-spacing:-.025em; }
+    .landing-section-label { display:flex; align-items:center; justify-content:space-between; gap:1.5rem; margin:0 0 1.25rem; }
+    .landing-section-label > .eyebrow { flex-shrink:0; }
+    .landing-section-copy { text-align:right; min-width:0; }
+    .landing-section-label h2 { margin:0 0 .35rem; padding:0; color:#0b3158; letter-spacing:-.025em; line-height:1.2; }
     .landing-section-label p { color:#53758f; margin:0; }
     .landing-steps { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:1.2rem; }
     .preview-card { padding:1.3rem; border:1px solid #c9deed; background:#ffffffd9; border-radius:16px; }
@@ -119,6 +122,7 @@ def render_landing(root: Path) -> None:
     .landing-categories span { border:1px solid #c9deed; background:#fff; padding:.4rem .8rem; border-radius:999px; font-size:.8rem; }
     .example-note { color:#53758f; font-size:.75rem; }
     @media(max-width:900px) { .landing-intro { grid-template-columns:1fr; gap:1.5rem; } .landing-steps { grid-template-columns:1fr; } .preview-card > img { height:260px; } }
+    @media(max-width:700px) { .landing-section-label { flex-direction:column; align-items:flex-start; gap:.6rem; } .landing-section-copy { text-align:left; } }
     @media(prefers-reduced-motion:reduce) { html, [data-testid="stAppViewContainer"] { scroll-behavior:auto; } }
     </style>""", unsafe_allow_html=True)
     copy, visual = st.columns([1.05, 1], gap="large")
