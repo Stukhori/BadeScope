@@ -73,7 +73,7 @@ def render_landing(root: Path) -> None:
     #classification-workspace { scroll-margin-top:5rem; }
     .landing { margin:1.5rem 0 3rem; }
     .case-counter { text-align:center; color:#53758f; padding:.65rem 0; font-size:.75rem; letter-spacing:.06em; }
-    .landing-intro { padding-top:1rem; }
+    .landing-intro { padding-top:1rem; margin-bottom:.75rem; }
     .st-key-landing_preview { margin-top:1.5rem; gap:0; background:#fff; border:1px solid #c9deed; border-radius:18px; overflow:hidden; box-shadow:0 20px 45px #174b7418; }
     .st-key-landing_image { position:relative; gap:0; }
     .st-key-landing_image img { width:100%; height:320px; object-fit:contain; background:#e9eff3; display:block; }
@@ -96,7 +96,7 @@ def render_landing(root: Path) -> None:
     .preview-dot { width:.5rem; height:.5rem; background:#65dbbb; border-radius:50%; }
     .landing-figure img { width:100%; height:320px; object-fit:contain; background:#e9eff3; display:block; }
     .landing-figure figcaption { padding:.85rem 1rem; color:#53758f; font-size:.8rem; }
-    .landing-section-label { margin:3.5rem 0 1.5rem; }
+    .landing-section-label { margin:0 0 1.25rem; }
     .landing-section-label h2 { margin:.3rem 0; color:#0b3158; letter-spacing:-.025em; }
     .landing-section-label p { color:#53758f; margin:0; }
     .landing-steps { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:1.2rem; }
